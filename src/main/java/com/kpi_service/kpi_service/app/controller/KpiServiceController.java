@@ -26,7 +26,7 @@ public class KpiServiceController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseBodyModel<String>> addKpiEmployee(@Valid @RequestBody AddKpiEmployeeRequest request) {
-        ResponseBodyModel<String> response = kpiService.AddKpiEmployee(request);
+        ResponseBodyModel<String> response = kpiService.addKpiEmployee(request);
         return ResponseEntity.ok(response);
     }
 

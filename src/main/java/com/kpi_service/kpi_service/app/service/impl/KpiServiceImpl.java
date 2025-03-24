@@ -5,6 +5,7 @@ import com.kpi_service.kpi_service.app.model.dbs.KpiEmployeeModel;
 import com.kpi_service.kpi_service.app.model.dto.AddKpiEmployeeRequest;
 import com.kpi_service.kpi_service.app.repositories.KpiEmployeeRepository;
 import com.kpi_service.kpi_service.app.service.KpiService;
+import com.kpi_service.kpi_service.app.service.client.smr.KpiSmrServiceClient;
 import com.kpi_service.kpi_service.core.model.ResponseBodyModel;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
@@ -22,14 +23,17 @@ import static com.kpi_service.kpi_service.app.constant.Constants.ResponseMessage
 public class KpiServiceImpl implements KpiService {
     Logger logger = LoggerFactory.getLogger("KpiService");
     private final KpiEmployeeRepository kpiEmployeeRepository;
+    private final KpiSmrServiceClient kpiSmrServiceClient;
 
-    public KpiServiceImpl(KpiEmployeeRepository kpiEmployeeRepository) {
+    public KpiServiceImpl(KpiEmployeeRepository kpiEmployeeRepository,
+                          KpiSmrServiceClient kpiSmrServiceClient) {
         this.kpiEmployeeRepository = kpiEmployeeRepository;
+        this.kpiSmrServiceClient = kpiSmrServiceClient;
     }
 
     @Transactional
     @Override
-    public ResponseBodyModel<String> AddKpiEmployee(AddKpiEmployeeRequest request) {
+    public ResponseBodyModel<String> addKpiEmployee(AddKpiEmployeeRequest request) {
         ResponseBodyModel<String> response = new ResponseBodyModel<>();
         try {
 

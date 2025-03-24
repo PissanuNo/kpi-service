@@ -8,7 +8,7 @@ import jakarta.transaction.Transactional;
 public interface KpiService {
 
     @Transactional
-    ResponseBodyModel<String> AddKpiEmployee(AddKpiEmployeeRequest request);
+    ResponseBodyModel<String> addKpiEmployee(AddKpiEmployeeRequest request);
 
     ResponseBodyModel<String> updateKpiEmployee(String employeeId);
 }
