@@ -11,4 +11,6 @@ public interface KpiService {
     ResponseBodyModel<String> addKpiEmployee(AddKpiEmployeeRequest request);
 
     ResponseBodyModel<String> updateKpiEmployee(String employeeId);
+
+    ResponseBodyModel<String> deleteKpiEmployee(String employeeId);
 }

@@ -67,7 +67,6 @@ public class KpiServiceImpl implements KpiService {
             if (employeeModel.isEmpty()) {
                 response.setOperationError(ERROR_CODE_DATA_NOT_FOUND, DATA_NOT_FOUND, null);
             }
-
             //send to sandmerit
 
             response.setOperationSuccess(SUCCESS_CODE, SUCCESS, null);
@@ -78,13 +77,18 @@ public class KpiServiceImpl implements KpiService {
         return response;
     }
 
+    @Transactional
+    @Override
     public ResponseBodyModel<String> deleteKpiEmployee(String employeeId) {
         ResponseBodyModel<String> response = new ResponseBodyModel<>();
         try {
-            kpiEmployeeRepository.deleteById(employeeId);
-            //send delete to sandmerit
-
-            response.setOperationSuccess(SUCCESS_CODE, SUCCESS, null);
+            if (kpiEmployeeRepository.findByEmployeeId(employeeId).isPresent()) {
+                //send delete to sandmerit
+                kpiEmployeeRepository.deleteById(employeeId);
+                response.setOperationSuccess(SUCCESS_CODE, SUCCESS, null);
+            } else{
+                response.setOperationError(ERROR_CODE_DATA_NOT_FOUND, DATA_NOT_FOUND, null);
+            }
         } catch (Exception ex) {
             logger.error("Error Delete KPI Employee: ", ex);
             response.setOperationError(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MSG, null);
