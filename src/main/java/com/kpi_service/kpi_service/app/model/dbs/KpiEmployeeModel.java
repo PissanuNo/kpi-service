@@ -15,7 +15,8 @@ import java.util.Date;
 @Table(name = "kpi_employee")
 public class KpiEmployeeModel {
     @Id
-    private String transId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer kpiEmployeeId;
     private String employeeId;
     private String accessLevel;
     private String userGroup;
@@ -23,7 +24,7 @@ public class KpiEmployeeModel {
     @Column(columnDefinition = "DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
     @Builder.Default
-    private Date createDate =  new Timestamp(System.currentTimeMillis());
+    private Date createDate = new Timestamp(System.currentTimeMillis());
     @Builder.Default
     private String createBy = "Administrator";
     @Column(columnDefinition = "DATETIME")
@@ -32,5 +33,14 @@ public class KpiEmployeeModel {
     private Date modifyDate = new Timestamp(System.currentTimeMillis());
     @Builder.Default
     private String modifyBy = "Administrator";
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "accessLevel", insertable = false, updatable = false)
+    private MasterDataModel accesslevelModel;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "userGroup", insertable = false, updatable = false)
+    private MasterDataModel userGroupModel;
+
 
 }

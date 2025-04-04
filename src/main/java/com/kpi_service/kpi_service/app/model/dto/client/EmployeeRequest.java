@@ -1,5 +1,6 @@
 package com.kpi_service.kpi_service.app.model.dto.client;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -9,14 +10,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeRequest
-{
+public class EmployeeRequest {
     @NotBlank
     private String CompanyName;
 
@@ -40,13 +40,16 @@ public class EmployeeRequest
     @Pattern(regexp = "Male|Female", message = "Gender must be either 'Male' or 'Female'")
     private String Gender;
 
+    @JsonFormat(pattern = " yyyy-MM-dd")
     @NotNull
-    private LocalDate BirthDate;
+    private Date BirthDate;
 
+    @JsonFormat(pattern = " yyyy-MM-dd")
     @NotNull
-    private LocalDate JoinDate;
+    private Date JoinDate;
 
-    private LocalDate LastWorkingDate;
+    @JsonFormat(pattern = " yyyy-MM-dd")
+    private Date LastWorkingDate;
 
     @NotBlank
     private String JobPosition;
@@ -79,6 +82,4 @@ public class EmployeeRequest
     private Integer Reviewer2;
     private Integer Reviewer3;
 
-    private String UserGroup;
-    private String AccessLevel;
 }

@@ -50,10 +50,10 @@ public class AuthServiceImpl implements AuthService {
             }
             //generate token sign on sandmerit internal
             String token = kpiConnection.getToken(employee.get().getEmployeeId());
-
+            String redirect = "";
             response.setOperationSuccess(SUCCESS_CODE, SUCCESS,
                     AuthResponse.builder()
-                    .token(token)
+                    .kpiRedirectUrl(redirect)
                     .employeeId(employee.get().getEmployeeId())
                     .build());
 

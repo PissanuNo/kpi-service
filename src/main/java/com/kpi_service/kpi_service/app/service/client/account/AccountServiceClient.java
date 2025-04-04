@@ -2,6 +2,7 @@ package com.kpi_service.kpi_service.app.service.client.account;
 
 import com.kpi_service.kpi_service.app.model.dto.AuthRequest;
 import com.kpi_service.kpi_service.app.model.dto.AuthResponse;
+import com.kpi_service.kpi_service.app.model.dto.client.ViewEmployeeDetailResponse;
 import com.kpi_service.kpi_service.core.model.ResponseBodyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,18 @@ public class AccountServiceClient {
                 .map(ResponseBodyModel::getObjectValue) //  use `objectValue` from ResponseBodyModel
                 .doOnError(WebClientResponseException.class,
                         ex -> log.error("Error auth employee client {}", ex.getMessage()))
+                .block();
+    }
+
+    public ResponseBodyModel<ViewEmployeeDetailResponse> getEmployeeDetail(String employeeId) {
+        return webClient.get()
+                .uri("/v3/employee/detail/"+ employeeId)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ResponseBodyModel<ViewEmployeeDetailResponse>>() {
+                }) //   Generic
+//                .map(ResponseBodyModel::getObjectValue) //  use `objectValue` from ResponseBodyModel
+                .doOnError(WebClientResponseException.class,
+                        ex -> log.error("Error get employee detail {}", ex.getMessage()))
                 .block();
     }
 

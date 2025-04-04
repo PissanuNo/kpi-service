@@ -10,7 +10,7 @@ public interface KpiService {
     @Transactional
     ResponseBodyModel<String> addKpiEmployee(AddKpiEmployeeRequest request);
 
-    ResponseBodyModel<String> updateKpiEmployee(String employeeId);
+    ResponseBodyModel<String> updateKpiEmployee(String employeeId, Boolean isEffective);
 
     ResponseBodyModel<String> deleteKpiEmployee(String employeeId);
 }

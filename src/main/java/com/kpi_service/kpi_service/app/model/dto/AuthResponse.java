@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AuthResponse {
     private String employeeId;
-    private String token;
+    private String kpiRedirectUrl;
 }
