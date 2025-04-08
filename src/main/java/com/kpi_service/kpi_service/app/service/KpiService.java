@@ -2,6 +2,7 @@ package com.kpi_service.kpi_service.app.service;
 
 
 import com.kpi_service.kpi_service.app.model.dto.AddKpiEmployeeRequest;
+import com.kpi_service.kpi_service.app.model.dto.KpiEmployeeResponse;
 import com.kpi_service.kpi_service.core.model.ResponseBodyModel;
 import jakarta.transaction.Transactional;
 
@@ -13,4 +14,6 @@ public interface KpiService {
     ResponseBodyModel<String> updateKpiEmployee(String employeeId, Boolean isEffective);
 
     ResponseBodyModel<String> deleteKpiEmployee(String employeeId);
+
+    ResponseBodyModel<KpiEmployeeResponse> getKpiEmployee(Integer kpiEmployeeId);
 }

@@ -25,7 +25,6 @@ public class PermissionAspect {
 
     private final AuthServiceClient authServiceClient;
 
-
     @Before("@annotation(permission)")  // Catch existing methods @Permission
     public void checkPermission(Permission permission) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -9,8 +9,10 @@ import com.kpi_service.kpi_service.app.service.AuthService;
 import com.kpi_service.kpi_service.app.service.client.account.AccountServiceClient;
 import com.kpi_service.kpi_service.app.service.client.smr.KpiConnection;
 import com.kpi_service.kpi_service.core.model.ResponseBodyModel;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,20 +21,18 @@ import static com.kpi_service.kpi_service.app.constant.Constants.ResponseCode.*;
 import static com.kpi_service.kpi_service.app.constant.Constants.ResponseMessage.*;
 
 
+@RequiredArgsConstructor
 @Service
 public class AuthServiceImpl implements AuthService {
-    Logger logger = LoggerFactory.getLogger("LoggingService");
+
+    Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
+
     private final KpiConnection kpiConnection;
     private final KpiEmployeeRepository kpiEmployeeRepository;
     private final AccountServiceClient accountServiceClient;
-    public AuthServiceImpl(KpiConnection kpiConnection,
-                           KpiEmployeeRepository kpiEmployeeRepository,
-                           AccountServiceClient accountServiceClient) {
-        this.kpiConnection = kpiConnection;
-        this.kpiEmployeeRepository = kpiEmployeeRepository;
-        this.accountServiceClient = accountServiceClient;
-    }
 
+    @Value("${signon.sandmerit.path}")
+    String signonSandmeritPath;
 
     @Override
     public ResponseBodyModel<AuthResponse> login(AuthRequest request) {
@@ -45,17 +45,18 @@ public class AuthServiceImpl implements AuthService {
             //check user have kpi
             Optional<KpiEmployeeModel> employee = kpiEmployeeRepository.findByEmployeeId(employeeId);
             if (employee.isEmpty()) {
-                response.setOperationError(ERROR_CODE_DATA_NOT_FOUND ,DATA_NOT_FOUND,null);
+                response.setOperationError(ERROR_CODE_DATA_NOT_FOUND, DATA_NOT_FOUND, null);
                 return response;
             }
             //generate token sign on sandmerit internal
-            String token = kpiConnection.getToken(employee.get().getEmployeeId());
-            String redirect = "";
+            String token = kpiConnection.getToken(employee.get().getKpiEmployeeId());
+            String redirect = String.format(signonSandmeritPath, employee.get().getKpiEmployeeId(), token);
             response.setOperationSuccess(SUCCESS_CODE, SUCCESS,
                     AuthResponse.builder()
-                    .kpiRedirectUrl(redirect)
-                    .employeeId(employee.get().getEmployeeId())
-                    .build());
+                            .kpiRedirectUrl(redirect)
+                            .employeeId(employee.get().getEmployeeId())
+                            .kpiEmployeeId(employee.get().getKpiEmployeeId())
+                            .build());
 
         } catch (Exception ex) {
             logger.error("Authentication failed: ", ex);

@@ -12,6 +12,7 @@ import org.springframework.security.jwt.JwtHelper;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class AuthenFilter extends OncePerRequestFilter {
 
@@ -30,8 +31,20 @@ public class AuthenFilter extends OncePerRequestFilter {
         } else {
             try {
                 String token = request.getHeader("Authorization");
-                JwtClaim claims = new ObjectMapper().readValue(JwtHelper.decode(token.split(" ")[1]).getClaims(), JwtClaim.class);
-                Authentication auth = new JwtAuthenticationToken(claims, token);
+                //  claims from JWT token (after Bearer)
+                String jwtToken = token.split(" ")[1];
+                // convert claimsString to Map
+                Map<String, Object> claimsMap = new ObjectMapper().readValue(JwtHelper.decode(jwtToken).getClaims(), Map.class);
+
+                // create and set JwtClaim
+                JwtClaim jwtClaim = JwtClaim.builder()
+                        .token(jwtToken)
+                        .expire(Long.valueOf(claimsMap.get("exp").toString()))
+                        .iat(Long.valueOf(claimsMap.get("iat").toString()))
+                        .attrs(claimsMap)
+                        .build();
+
+                Authentication auth = new JwtAuthenticationToken(jwtClaim, token);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (Exception ex) {
                 if (request.getHeader("Authorization") != null) { //if token exists & error then log token

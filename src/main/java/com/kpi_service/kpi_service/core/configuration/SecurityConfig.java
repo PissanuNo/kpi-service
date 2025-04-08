@@ -24,7 +24,7 @@ public class SecurityConfig {
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
 
     @Autowired
-    public SecurityConfig (JwtAuthenticationProvider jwtAuthenticationProvider){
+    public SecurityConfig(JwtAuthenticationProvider jwtAuthenticationProvider) {
         this.jwtAuthenticationProvider = jwtAuthenticationProvider;
     }
 
@@ -46,19 +46,12 @@ public class SecurityConfig {
 
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/s/**", "/v*/s/**").authenticated()
+                        .requestMatchers("/s/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(IF_REQUIRED))
                 .authenticationProvider(jwtAuthenticationProvider)
                 .addFilterBefore(new AuthenFilter(), BasicAuthenticationFilter.class)
-                .logout(logout ->
-                        logout.logoutUrl("/v1/logout")
-                                .logoutSuccessUrl("/login")
-                                .invalidateHttpSession(true)
-                                .deleteCookies("JSESSIONID")
-                                .permitAll()
-                )
         ;
         return http.build();
     }

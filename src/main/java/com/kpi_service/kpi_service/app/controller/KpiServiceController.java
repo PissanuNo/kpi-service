@@ -2,6 +2,7 @@ package com.kpi_service.kpi_service.app.controller;
 
 
 import com.kpi_service.kpi_service.app.model.dto.AddKpiEmployeeRequest;
+import com.kpi_service.kpi_service.app.model.dto.KpiEmployeeResponse;
 import com.kpi_service.kpi_service.app.service.KpiService;
 import com.kpi_service.kpi_service.core.model.Permission;
 import com.kpi_service.kpi_service.core.model.ResponseBodyModel;
@@ -39,5 +40,14 @@ public class KpiServiceController {
         ResponseBodyModel<String> response = kpiService.deleteKpiEmployee(employeeId);
         return ResponseEntity.ok(response);
     }
+
+    @Permission(menu = KPI_MANAGEMENT, permission = READ)
+    @GetMapping(path = "/s/kpi/{employeeId}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseBodyModel<KpiEmployeeResponse>> getKpiEmployee(@PathVariable("employeeId") Integer employeeId) {
+        ResponseBodyModel<KpiEmployeeResponse> response = kpiService.getKpiEmployee(employeeId);
+        return ResponseEntity.ok(response);
+    }
+
 
 }

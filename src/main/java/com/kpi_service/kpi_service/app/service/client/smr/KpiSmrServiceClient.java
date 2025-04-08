@@ -27,7 +27,7 @@ public class KpiSmrServiceClient {
     @Autowired
     public KpiSmrServiceClient(WebClient.Builder webClientBuilder,
                                KpiConnection kpiConnection,
-                               @Value("${sandmerit.kpi.service}") String sandmeritUrl) {
+                               @Value("${sandmerit.kpi.url}") String sandmeritUrl) {
         this.webClient = webClientBuilder.baseUrl(sandmeritUrl).build();
         this.kpiConnection = kpiConnection;
     }

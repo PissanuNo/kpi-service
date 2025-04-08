@@ -15,7 +15,6 @@ import java.util.Date;
 @Table(name = "kpi_employee")
 public class KpiEmployeeModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer kpiEmployeeId;
     private String employeeId;
     private String accessLevel;
@@ -35,11 +34,11 @@ public class KpiEmployeeModel {
     private String modifyBy = "Administrator";
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "accessLevel", insertable = false, updatable = false)
+    @JoinColumn(name = "accessLevel", referencedColumnName = "dataId", insertable = false, updatable = false)
     private MasterDataModel accesslevelModel;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "userGroup", insertable = false, updatable = false)
+    @JoinColumn(name = "userGroup", referencedColumnName = "dataId", insertable = false, updatable = false)
     private MasterDataModel userGroupModel;
 
 

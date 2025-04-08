@@ -26,11 +26,11 @@ public class KpiConnection {
     /*
     * Single Sign On
     * */
-    public String getToken(String employeeId) {
+    public String getToken(Object employeeId) {
         return getTokenByType("token", employeeId);
     }
     
-    private String getTokenByType(String type, String key){
+    private String getTokenByType(String type, Object key){
         Date now = new Date();
         String formattedDate = DATE_FORMAT.format(now);
 

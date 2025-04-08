@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthResponse {
+public class KpiEmployeeResponse {
     private String employeeId;
-    private Integer kpiEmployeeId;
-    private String kpiRedirectUrl;
+    private String accessLevel;
+    private String userGroup;
 }

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface KpiEmployeeRepository extends JpaRepository<KpiEmployeeModel, String> {
+public interface KpiEmployeeRepository extends JpaRepository<KpiEmployeeModel, Integer> {
 
     Optional<KpiEmployeeModel> findByEmployeeId(String employeeId);
 }
