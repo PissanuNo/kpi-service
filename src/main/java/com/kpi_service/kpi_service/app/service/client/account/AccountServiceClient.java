@@ -2,6 +2,7 @@ package com.kpi_service.kpi_service.app.service.client.account;
 
 import com.kpi_service.kpi_service.app.model.dto.AuthRequest;
 import com.kpi_service.kpi_service.app.model.dto.AuthResponse;
+import com.kpi_service.kpi_service.app.model.dto.client.AuthClientResponse;
 import com.kpi_service.kpi_service.app.model.dto.client.ViewEmployeeDetailResponse;
 import com.kpi_service.kpi_service.core.model.ResponseBodyModel;
 import org.slf4j.Logger;
@@ -26,13 +27,13 @@ public class AccountServiceClient {
         this.webClient = webClientBuilder.baseUrl(accountServiceUrl).build();
     }
 
-    public AuthResponse auth(AuthRequest request) {
+    public AuthClientResponse auth(AuthRequest request) {
         return webClient.post()
                 .uri("/v1/auth")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<ResponseBodyModel<AuthResponse>>() {
+                .bodyToMono(new ParameterizedTypeReference<ResponseBodyModel<AuthClientResponse>>() {
                 }) //   Generic
                 .map(ResponseBodyModel::getObjectValue) //  use `objectValue` from ResponseBodyModel
                 .doOnError(WebClientResponseException.class,

@@ -4,6 +4,7 @@ package com.kpi_service.kpi_service.app.service.impl;
 import com.kpi_service.kpi_service.app.model.dbs.KpiEmployeeModel;
 import com.kpi_service.kpi_service.app.model.dto.AuthRequest;
 import com.kpi_service.kpi_service.app.model.dto.AuthResponse;
+import com.kpi_service.kpi_service.app.model.dto.client.AuthClientResponse;
 import com.kpi_service.kpi_service.app.repositories.KpiEmployeeRepository;
 import com.kpi_service.kpi_service.app.service.AuthService;
 import com.kpi_service.kpi_service.app.service.client.account.AccountServiceClient;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.kpi_service.kpi_service.app.constant.Constants.ResponseCode.*;
@@ -40,7 +42,11 @@ public class AuthServiceImpl implements AuthService {
         try {
 
             //call api to account service
-            AuthResponse authRes = accountServiceClient.auth(request);
+            AuthClientResponse authRes = accountServiceClient.auth(request);
+            if (Objects.isNull(authRes.getAccessToken())) {
+                response.setOperationError(ERROR_CODE_BUSINESS, INTERNAL_SERVER_ERROR_MSG, null);
+                return response;
+            }
             String employeeId = authRes.getEmployeeId();
             //check user have kpi
             Optional<KpiEmployeeModel> employee = kpiEmployeeRepository.findByEmployeeId(employeeId);
