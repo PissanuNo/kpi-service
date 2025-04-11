@@ -31,6 +31,7 @@ public class Constants {
         public static final String DATA_NOT_FOUND = "Data not found.";
         public static final String DATA_DUPLICATE = "Data is duplicated.";
         public static final String INTERNAL_SERVER_ERROR_MSG = "Internal Server Error.";
+        public static final String EXTERNAL_SERVER_ERROR_MSG = "External Server Error.";
         public static final String ERROR_FILE_STORAGE_UPLOAD = "File storage upload error.";
         public static final String ERROR_FILE_SIZE_LIMIT_EXCEEDED = "File size limit exceeded 2 mb";
         public static final String ERROR_FILE_STORAGE_DOWNLOAD = "File storage download error.";
@@ -39,19 +40,10 @@ public class Constants {
 
     }
 
-    public enum userGroup {
+    public enum FormatDate {
         ;
-        public static final String SUPER_ADMIN = "Super Admin";
-        public static final String HR = "HR";
-        public static final String MANAGER = "Manager";
-        public static final String EMPLOYEE = "Employee";
-    }
-
-    public enum AccessLevel{
-        ;
-        public static final String HOLDING = "Holding";
-        public static final String COMPANY = "Company";
-        public static final String DEPARTMENT = "Department";
+        public static final String YYYY_MM_DD = "yyyy-MM-dd";
+        public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
     }
 
 }

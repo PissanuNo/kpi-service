@@ -1,6 +1,6 @@
 package com.kpi_service.kpi_service.app.model.dto.client;
 
-import jakarta.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,12 +11,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateEmployeeRequest {
-    @NotNull
-    private Integer ClientCode;
+    @JsonProperty("ClientCode")
+    private Integer clientCode;
 
-    private EmployeeRequest Employee;
+    @JsonProperty("Employee")
+    private EmployeeClientRequest employee;
 
-    private String UserGroup;
+    @JsonProperty("UserGroup")
+    private String userGroup;
 
-    private String AccessLevel;
+    @JsonProperty("AccessLevel")
+    private String accessLevel;
 }

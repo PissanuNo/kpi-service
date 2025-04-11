@@ -1,5 +1,6 @@
 package com.kpi_service.kpi_service.app.service.client.smr;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -13,24 +14,26 @@ For internal token generation with Sandmerit
 @Component
 public class KpiConnection {
 
-    private static final String PRIVATE_KEY = "WX3CH1SOISOD34R9GPOV1BQTE";
+    @Value("${smr.key}")
+    public String privateKey;
+
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
 
     /*
     API Connection
     * */
     public String getConnection() {
-        return getTokenByType("connection", PRIVATE_KEY);
+        return getTokenByType("connection", privateKey);
     }
 
     /*
-    * Single Sign On
-    * */
+     * Single Sign On
+     * */
     public String getToken(Object employeeId) {
         return getTokenByType("token", employeeId);
     }
-    
-    private String getTokenByType(String type, Object key){
+
+    private String getTokenByType(String type, Object key) {
         Date now = new Date();
         String formattedDate = DATE_FORMAT.format(now);
 
@@ -47,14 +50,21 @@ public class KpiConnection {
         int step2 = step1 % 100; // Get last 2 digits
 
         String finalString = "";
-        if (type.equalsIgnoreCase("connection")){
+        if (type.equalsIgnoreCase("connection")) {
             // Concatenate values
-            finalString = PRIVATE_KEY + formattedDate + String.format("%02d", step2);
+            finalString = getLast10Chars(privateKey) + formattedDate + String.format("%02d", step2);
         } else if (type.equalsIgnoreCase("token")) {
             finalString = key + ":" + formattedDate + ":" + String.format("%02d", step2);
         }
-        
+
         // Encode in Base64
         return Base64.getEncoder().encodeToString(finalString.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public String getLast10Chars(String input) {
+        if (input == null || input.length() <= 10) {
+            return input;
+        }
+        return input.substring(input.length() - 10);
     }
 }

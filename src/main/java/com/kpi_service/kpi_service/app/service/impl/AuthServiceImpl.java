@@ -44,7 +44,8 @@ public class AuthServiceImpl implements AuthService {
             //call api to account service
             AuthClientResponse authRes = accountServiceClient.auth(request);
             if (Objects.isNull(authRes.getAccessToken())) {
-                response.setOperationError(ERROR_CODE_BUSINESS, INTERNAL_SERVER_ERROR_MSG, null);
+                logger.error("Auth failed : {}", authRes );
+                response.setOperationError(ERROR_CODE_BUSINESS, EXTERNAL_SERVER_ERROR_MSG, null);
                 return response;
             }
             String employeeId = authRes.getEmployeeId();
@@ -59,8 +60,11 @@ public class AuthServiceImpl implements AuthService {
             String redirect = String.format(signonSandmeritPath, employee.get().getKpiEmployeeId(), token);
             response.setOperationSuccess(SUCCESS_CODE, SUCCESS,
                     AuthResponse.builder()
-                            .kpiRedirectUrl(redirect)
                             .employeeId(employee.get().getEmployeeId())
+                            .accessToken(authRes.getAccessToken())
+                            .refreshToken(authRes.getRefreshToken())
+                            .expired(authRes.getExpired())
+                            .kpiRedirectUrl(redirect)
                             .kpiEmployeeId(employee.get().getKpiEmployeeId())
                             .build());
 

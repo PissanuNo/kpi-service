@@ -12,6 +12,7 @@ import lombok.*;
 @Table(name = "kpi_corporate")
 public class KpiCorporateModel {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer kpiCorporateId;
     private String corporateId;
 

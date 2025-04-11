@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class EmployeeResponse {
+public class EmployeeClientResponse {
     private Boolean IsSuccess;
     private String MessageHeader;
     private String MessageBody;

@@ -7,10 +7,7 @@ import com.kpi_service.kpi_service.app.model.dbs.KpiEmployeeModel;
 import com.kpi_service.kpi_service.app.model.dbs.MasterDataModel;
 import com.kpi_service.kpi_service.app.model.dto.AddKpiEmployeeRequest;
 import com.kpi_service.kpi_service.app.model.dto.KpiEmployeeResponse;
-import com.kpi_service.kpi_service.app.model.dto.client.EmployeeRequest;
-import com.kpi_service.kpi_service.app.model.dto.client.EmployeeResponse;
-import com.kpi_service.kpi_service.app.model.dto.client.UpdateEmployeeRequest;
-import com.kpi_service.kpi_service.app.model.dto.client.ViewEmployeeDetailResponse;
+import com.kpi_service.kpi_service.app.model.dto.client.*;
 import com.kpi_service.kpi_service.app.repositories.KpiCorporateRepository;
 import com.kpi_service.kpi_service.app.repositories.KpiEmployeeRepository;
 import com.kpi_service.kpi_service.app.repositories.MasterDataRepository;
@@ -25,11 +22,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.kpi_service.kpi_service.app.constant.Constants.ResponseCode.*;
 import static com.kpi_service.kpi_service.app.constant.Constants.ResponseMessage.*;
+import static com.kpi_service.kpi_service.app.constant.Kpi.JobGrad.GENERAL;
 
 
 @Service
@@ -42,7 +40,7 @@ public class KpiServiceImpl implements KpiService {
     private final AccountServiceClient accountServiceClient;
     private final MasterDataRepository masterDataRepository;
 
-    private static final String errorAccountServiceClient = "Error get employee detail from account service client : ";
+    private static final String ERROR_GET_EMPLOYEE_DETAIL_FROM_ACCOUNT_SERVICE_CLIENT = "Error get employee detail from account service client : {}";
 
     @Transactional
     @Override
@@ -58,22 +56,22 @@ public class KpiServiceImpl implements KpiService {
             //get user detail in account service client by account id
             ResponseBodyModel<ViewEmployeeDetailResponse> employeeDetail = accountServiceClient.getEmployeeDetail(request.getEmployeeId());
             if (!employeeDetail.isStatus()) {
-                log.error(errorAccountServiceClient, employeeDetail.getMessage());
+                log.error(ERROR_GET_EMPLOYEE_DETAIL_FROM_ACCOUNT_SERVICE_CLIENT, employeeDetail.getMessage());
                 response.setOperationError(ERROR_CODE_BUSINESS, DATA_NOT_FOUND, null);
                 return response;
             }
 
             Integer kpiCorporateId = updateCorporate(employeeDetail.getObjectValue().getCorporateId());
-            Integer kpiEmployeeId = Math.abs((int) (UUID.randomUUID().getMostSignificantBits() & 0xFFFFFFFFL));
-
-            kpiEmployeeRepository.saveAndFlush(KpiEmployeeModel.builder()
-                    .kpiEmployeeId(kpiEmployeeId)
+            KpiEmployeeModel newKpiEmployee = kpiEmployeeRepository.save(KpiEmployeeModel.builder()
                     .employeeId(request.getEmployeeId())
+                    .kpiCorporateId(kpiCorporateId)
                     .accessLevel(request.getAccessLevel())
                     .userGroup(request.getUserGroup())
                     .build());
 
-            EmployeeRequest employeeRequest = setEmployeeRequest(employeeDetail.getObjectValue(), kpiEmployeeId);
+            Integer kpiEmployeeId = newKpiEmployee.getKpiEmployeeId();
+
+            EmployeeClientRequest employeeClientRequest = setEmployeeRequest(employeeDetail.getObjectValue(), kpiEmployeeId);
 
             Optional<MasterDataModel> accessLevel = masterDataRepository.findById(request.getAccessLevel());
             if (accessLevel.isEmpty()) {
@@ -87,23 +85,25 @@ public class KpiServiceImpl implements KpiService {
                 return response;
             }
 
-            //send add to sandmerit
-//            EmployeeResponse result = kpiSmrServiceClient.createEmployee(
-//                    CreateEmployeeRequest.builder()
-//                            .ClientCode(kpiCorporateId)
-//                            .Employee(employeeRequest)
-//                            .AccessLevel(accessLevel.get().getDataDetailEn())
-//                            .UserGroup(userGroup.get().getDataDetailEn())
-//                            .build()
-//            );
+            CreateEmployeeRequest createEmployeeRequest = CreateEmployeeRequest.builder()
+                    .clientCode(kpiCorporateId)
+                    .employee(employeeClientRequest)
+                    .accessLevel(accessLevel.get().getDataDetailEn())
+                    .userGroup(userGroup.get().getDataDetailEn())
+                    .build();
 
-//            if (result.getIsSuccess().equals(Boolean.FALSE)) {
-//                log.error("Error Creating employee in smr client: {}", result);
-//                response.setOperationError(FAIL_CODE_EXTERNAL, ERROR, null);
-//                return response;
-//            }
+            //send add to sandmerit kpi
+            EmployeeClientResponse result = kpiSmrServiceClient.createEmployee(createEmployeeRequest);
 
-            response.setOperationSuccess(SUCCESS_CODE, SUCCESS, null);
+            if (Objects.isNull(result) || result.getIsSuccess().equals(Boolean.FALSE)) {
+                log.error("Error Creating employee in sandmerit client: {}", result);
+                response.setOperationError(FAIL_CODE_EXTERNAL, ERROR, null);
+                return response;
+            } else {
+                log.info("Success to add employee in sandmerit client: {}", result);
+            }
+
+            response.setOperationSuccess(SUCCESS_CODE, SUCCESS, createEmployeeRequest.toString());
         } catch (Exception ex) {
             log.error("Error Add KPI Employee: ", ex);
             response.setOperationError(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MSG, null);
@@ -111,36 +111,36 @@ public class KpiServiceImpl implements KpiService {
         return response;
     }
 
-    private EmployeeRequest setEmployeeRequest(ViewEmployeeDetailResponse employeeDetail, Integer kpiEmployeeId) {
-        return EmployeeRequest.builder()
-                .CompanyName(employeeDetail.getCorporateNameEn())
-                .DepartmentName1(employeeDetail.getDepartmentLevel0())
-                .DepartmentName2(employeeDetail.getDepartmentLevel1())
-                .DepartmentName3(employeeDetail.getDepartmentLevel2())
-                .DepartmentName4(employeeDetail.getDepartmentLevel3())
-                .DepartmentName5(employeeDetail.getDepartmentLevel4())
-                .EmployeeCode(kpiEmployeeId)
-                .EmployeeName(employeeDetail.getEmployeeName())
-                .Gender(employeeDetail.getGender())
-                .BirthDate(employeeDetail.getBirthDate())
-                .JoinDate(employeeDetail.getJoinDate())
-                .LastWorkingDate(employeeDetail.getLastWorkingDate())
-                .JobPosition(employeeDetail.getJobPositionNameEn())
-                .JobGrade(Strings.isNullOrEmpty(employeeDetail.getJobGradeNameEn())
-                        ? "General" :
+    private EmployeeClientRequest setEmployeeRequest(ViewEmployeeDetailResponse employeeDetail, Integer kpiEmployeeId) {
+        return EmployeeClientRequest.builder()
+                .companyName(employeeDetail.getCorporateNameEn())
+                .departmentName1(employeeDetail.getDepartmentLevel0())
+                .departmentName2(employeeDetail.getDepartmentLevel1())
+                .departmentName3(employeeDetail.getDepartmentLevel2())
+                .departmentName4(employeeDetail.getDepartmentLevel3())
+                .departmentName5(employeeDetail.getDepartmentLevel4())
+                .employeeCode(kpiEmployeeId)
+                .employeeName(employeeDetail.getEmployeeName())
+                .gender(employeeDetail.getGender())
+                .birthDate(employeeDetail.getBirthDate())
+                .joinDate(employeeDetail.getJoinDate())
+                .lastWorkingDate(employeeDetail.getLastWorkingDate())
+                .jobPosition(employeeDetail.getJobPositionNameEn())
+                .jobGrade(Strings.isNullOrEmpty(employeeDetail.getJobGradeNameEn())
+                        ? GENERAL :
                         employeeDetail.getJobGradeNameEn())
-                .Nationality(employeeDetail.getNationalityNameEn())
-                .Race(employeeDetail.getRaceNameEn())
-                .Religion(employeeDetail.getReligionNameEn())
-                .MaritalStatus(employeeDetail.getMarital())
-                .Email(employeeDetail.getEmail())
-                .EmailPersonal(employeeDetail.getPersonalEmail())
-                .ContactNo(employeeDetail.getContactNo())
-                .MobileNo(employeeDetail.getMobileContactNo())
-                .DirectSuperior(updateReviewer(employeeDetail.getDirectSuperiorId()))
-                .Reviewer1(updateReviewer(employeeDetail.getReviewer1Id()))
-                .Reviewer2(updateReviewer(employeeDetail.getReviewer2Id()))
-                .Reviewer3(updateReviewer(employeeDetail.getReviewer3Id()))
+                .nationality(employeeDetail.getNationalityNameEn())
+                .race(employeeDetail.getRaceNameEn())
+                .religion(employeeDetail.getReligionNameEn())
+                .maritalStatus(employeeDetail.getMarital())
+                .email(employeeDetail.getEmail())
+                .emailPersonal(employeeDetail.getPersonalEmail())
+                .contactNo(employeeDetail.getContactNo())
+                .mobileNo(employeeDetail.getMobileContactNo())
+                .directSuperior(updateReviewer(employeeDetail.getDirectSuperiorId()))
+                .reviewer1(updateReviewer(employeeDetail.getReviewer1Id()))
+                .reviewer2(updateReviewer(employeeDetail.getReviewer2Id()))
+                .reviewer3(updateReviewer(employeeDetail.getReviewer3Id()))
                 .build();
     }
 
@@ -165,16 +165,16 @@ public class KpiServiceImpl implements KpiService {
         if (corporateModel.isPresent()) {
             kpiCorporateId = corporateModel.get().getKpiCorporateId();
         } else {
-            kpiCorporateId = Math.abs((int) (UUID.randomUUID().getMostSignificantBits() & 0xFFFFFFFFL));
-            kpiCorporateRepository.saveAndFlush(
+            KpiCorporateModel newCorporate = kpiCorporateRepository.saveAndFlush(
                     KpiCorporateModel.builder()
-                            .kpiCorporateId(kpiCorporateId)
                             .corporateId(corporateId)
                             .build());
+            kpiCorporateId = newCorporate.getKpiCorporateId();
         }
         return kpiCorporateId;
     }
 
+    @Transactional
     @Override
     public ResponseBodyModel<String> updateKpiEmployee(String employeeId, Boolean isEffective) {
         ResponseBodyModel<String> response = new ResponseBodyModel<>();
@@ -186,9 +186,9 @@ public class KpiServiceImpl implements KpiService {
             }
 
             //get employee detail
-            ResponseBodyModel<ViewEmployeeDetailResponse> employeeDetail = accountServiceClient.getEmployeeDetail(employeeId);
+            ResponseBodyModel<ViewEmployeeDetailResponse> employeeDetail = accountServiceClient.getEmployeeDetail(employeeModel.get().getEmployeeId());
             if (!employeeDetail.isStatus()) {
-                log.error(errorAccountServiceClient, employeeDetail.getMessage());
+                log.error(ERROR_GET_EMPLOYEE_DETAIL_FROM_ACCOUNT_SERVICE_CLIENT, employeeDetail.getMessage());
                 response.setOperationError(ERROR_CODE_BUSINESS, DATA_NOT_FOUND, null);
                 return response;
             }
@@ -199,17 +199,24 @@ public class KpiServiceImpl implements KpiService {
                 return response;
             }
 
+            //update kpi corporate if change
+            if (!kpiCorporateId.equals(employeeModel.get().getKpiCorporateId())) {
+                employeeModel.get().setKpiCorporateId(kpiCorporateId);
+                kpiEmployeeRepository.saveAndFlush(employeeModel.get());
+            }
+
             Date effectiveDate = null;
             if (isEffective.equals(Boolean.TRUE)) {
                 effectiveDate = new Date();
+                log.info("Convert effect date format: {}", effectiveDate);
             }
 
-            EmployeeRequest employeeRequest = setEmployeeRequest(employeeDetail.getObjectValue(), employeeModel.get().getKpiEmployeeId());
+            EmployeeClientRequest employeeClientRequest = setEmployeeRequest(employeeDetail.getObjectValue(), employeeModel.get().getKpiEmployeeId());
 
             //send to sandmerit
-            EmployeeResponse result = kpiSmrServiceClient.updateEmployee(UpdateEmployeeRequest.builder()
+            EmployeeClientResponse result = kpiSmrServiceClient.updateEmployee(UpdateEmployeeRequest.builder()
                     .ClientCode(kpiCorporateId)
-                    .Employee(employeeRequest)
+                    .Employee(employeeClientRequest)
                     .EffectiveDate(effectiveDate)
                     .build());
 
@@ -218,6 +225,7 @@ public class KpiServiceImpl implements KpiService {
                 response.setOperationError(FAIL_CODE_EXTERNAL, ERROR, null);
                 return response;
             }
+            log.info("Success to Update Employee in smr client: {}", result);
 
             response.setOperationSuccess(SUCCESS_CODE, SUCCESS, null);
         } catch (Exception ex) {
@@ -234,31 +242,26 @@ public class KpiServiceImpl implements KpiService {
         try {
             Optional<KpiEmployeeModel> employeeModel = kpiEmployeeRepository.findByEmployeeId(employeeId);
             if (employeeModel.isPresent()) {
-                //get employee detail
-                ResponseBodyModel<ViewEmployeeDetailResponse> employeeDetail = accountServiceClient.getEmployeeDetail(employeeId);
-                if (!employeeDetail.isStatus()) {
-                    response.setOperationError(ERROR_CODE_DATA_NOT_FOUND, DATA_NOT_FOUND, null);
-                    return response;
-                }
-                Integer kpiCorporateId = updateCorporate(employeeDetail.getObjectValue().getCorporateId());
-                if (kpiCorporateId == null) {
-                    response.setOperationError(ERROR_CODE_DATA_NOT_FOUND, DATA_NOT_FOUND, null);
-                    return response;
-                }
-                //send delete to sandmerit
-//                EmployeeResponse result = kpiSmrServiceClient.deleteEmployee(DeleteEmployeeRequest
-//                        .builder()
-//                        .ClientCode(kpiCorporateId)
-//                        .EmployeeCode(employeeModel.get().getKpiEmployeeId())
-//                        .build());
-//
-//                if (result.getIsSuccess().equals(Boolean.FALSE)) {
-//                    log.error("Error Deleting employee in smr client: {}", result);
-//                    response.setOperationError(FAIL_CODE_EXTERNAL, ERROR, null);
-//                    return response;
-//                }
 
+                Integer kpiCorporateId = employeeModel.get().getKpiCorporateId();
+
+                //send delete api to sandmerit
+                EmployeeClientResponse result = kpiSmrServiceClient.deleteEmployee(DeleteEmployeeRequest
+                        .builder()
+                        .clientCode(kpiCorporateId)
+                        .employeeCode(employeeModel.get().getKpiEmployeeId())
+                        .build());
+
+                if (result.getIsSuccess().equals(Boolean.FALSE)) {
+                    log.error("Error Deleting employee in smr client: {}", result);
+                    response.setOperationError(FAIL_CODE_EXTERNAL, ERROR, null);
+                    return response;
+                }
+                log.info("Success to delete employee in smr client: {} ", result);
+
+                //delete employee
                 kpiEmployeeRepository.deleteById(employeeModel.get().getKpiEmployeeId());
+
                 response.setOperationSuccess(SUCCESS_CODE, SUCCESS, null);
             } else {
                 response.setOperationError(ERROR_CODE_DATA_NOT_FOUND, DATA_NOT_FOUND, null);

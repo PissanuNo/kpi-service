@@ -1,5 +1,6 @@
 package com.kpi_service.kpi_service.app.model.dto.client;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeleteEmployeeRequest {
-    private Integer ClientCode;
-    private Integer EmployeeCode;
+    @JsonProperty("ClientCode")
+    private Integer clientCode;
+
+    @JsonProperty("EmployeeCode")
+    private Integer employeeCode;
 }
