@@ -1,7 +1,7 @@
 package com.kpi_service.kpi_service.app.controller;
 
-import com.kpi_service.kpi_service.app.model.dto.AuthRequest;
-import com.kpi_service.kpi_service.app.model.dto.AuthResponse;
+import com.kpi_service.kpi_service.app.model.dto.auth.AuthRequest;
+import com.kpi_service.kpi_service.app.model.dto.auth.AuthResponse;
 import com.kpi_service.kpi_service.app.service.AuthService;
 import com.kpi_service.kpi_service.core.model.ResponseBodyModel;
 import jakarta.validation.Valid;

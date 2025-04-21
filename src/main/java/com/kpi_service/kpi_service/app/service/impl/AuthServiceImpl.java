@@ -2,8 +2,8 @@ package com.kpi_service.kpi_service.app.service.impl;
 
 
 import com.kpi_service.kpi_service.app.model.dbs.KpiEmployeeModel;
-import com.kpi_service.kpi_service.app.model.dto.AuthRequest;
-import com.kpi_service.kpi_service.app.model.dto.AuthResponse;
+import com.kpi_service.kpi_service.app.model.dto.auth.AuthRequest;
+import com.kpi_service.kpi_service.app.model.dto.auth.AuthResponse;
 import com.kpi_service.kpi_service.app.model.dto.client.AuthClientResponse;
 import com.kpi_service.kpi_service.app.repositories.KpiEmployeeRepository;
 import com.kpi_service.kpi_service.app.service.AuthService;

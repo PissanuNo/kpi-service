@@ -2,6 +2,8 @@ package com.kpi_service.kpi_service.app.model.dto.client;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.kpi_service.kpi_service.app.utils.MicrosoftDateSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -48,15 +50,15 @@ public class EmployeeClientRequest {
     private String gender;
 
     @JsonProperty("BirthDate")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonSerialize(using = MicrosoftDateSerializer.class)
     private Date birthDate;
 
     @JsonProperty("JoinDate")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonSerialize(using = MicrosoftDateSerializer.class)
     private Date joinDate;
 
     @JsonProperty("LastWorkingDate")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonSerialize(using = MicrosoftDateSerializer.class)
     private Date lastWorkingDate;
 
     @JsonProperty("JobPosition")

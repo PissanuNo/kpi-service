@@ -1,7 +1,6 @@
 package com.kpi_service.kpi_service.app.service.client.account;
 
-import com.kpi_service.kpi_service.app.model.dto.AuthRequest;
-import com.kpi_service.kpi_service.app.model.dto.AuthResponse;
+import com.kpi_service.kpi_service.app.model.dto.auth.AuthRequest;
 import com.kpi_service.kpi_service.app.model.dto.client.AuthClientResponse;
 import com.kpi_service.kpi_service.app.model.dto.client.ViewEmployeeDetailResponse;
 import com.kpi_service.kpi_service.core.model.ResponseBodyModel;

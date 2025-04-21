@@ -17,8 +17,6 @@ public class KpiConnection {
     @Value("${smr.key}")
     public String privateKey;
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMddHHmmss");
-
     /*
     API Connection
     * */
@@ -35,19 +33,11 @@ public class KpiConnection {
 
     private String getTokenByType(String type, Object key) {
         Date now = new Date();
-        String formattedDate = DATE_FORMAT.format(now);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        String formattedDate = dateFormat.format(now);
 
         // Parse date components
-        int year = Integer.parseInt(formattedDate.substring(0, 4));
-        int month = Integer.parseInt(formattedDate.substring(4, 6));
-        int day = Integer.parseInt(formattedDate.substring(6, 8));
-        int hour = Integer.parseInt(formattedDate.substring(8, 10));
-        int minutes = Integer.parseInt(formattedDate.substring(10, 12));
-        int seconds = Integer.parseInt(formattedDate.substring(12, 14));
-
-        // Step 1: Compute hash
-        int step1 = (year + month + day) * (hour + minutes + seconds);
-        int step2 = step1 % 100; // Get last 2 digits
+        int step2 = getStep2(formattedDate);
 
         String finalString = "";
         if (type.equalsIgnoreCase("connection")) {
@@ -59,6 +49,20 @@ public class KpiConnection {
 
         // Encode in Base64
         return Base64.getEncoder().encodeToString(finalString.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static int getStep2(String formattedDate) {
+        int year = Integer.parseInt(formattedDate.substring(0, 4));
+        int month = Integer.parseInt(formattedDate.substring(4, 6));
+        int day = Integer.parseInt(formattedDate.substring(6, 8));
+        int hour = Integer.parseInt(formattedDate.substring(8, 10));
+        int minutes = Integer.parseInt(formattedDate.substring(10, 12));
+        int seconds = Integer.parseInt(formattedDate.substring(12, 14));
+
+        // Step 1: Compute hash
+        int step1 = (year + month + day) * (hour + minutes + seconds);
+        // Get last 2 digits
+        return step1 % 100;
     }
 
     public String getLast10Chars(String input) {

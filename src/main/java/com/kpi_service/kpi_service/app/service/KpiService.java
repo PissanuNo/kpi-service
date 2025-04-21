@@ -1,8 +1,8 @@
 package com.kpi_service.kpi_service.app.service;
 
 
-import com.kpi_service.kpi_service.app.model.dto.AddKpiEmployeeRequest;
-import com.kpi_service.kpi_service.app.model.dto.KpiEmployeeResponse;
+import com.kpi_service.kpi_service.app.model.dto.kpi.AddKpiEmployeeRequest;
+import com.kpi_service.kpi_service.app.model.dto.kpi.KpiEmployeeResponse;
 import com.kpi_service.kpi_service.core.model.ResponseBodyModel;
 import jakarta.transaction.Transactional;
 

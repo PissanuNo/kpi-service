@@ -1,4 +1,4 @@
-package com.kpi_service.kpi_service.app.model.dto;
+package com.kpi_service.kpi_service.app.model.dto.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

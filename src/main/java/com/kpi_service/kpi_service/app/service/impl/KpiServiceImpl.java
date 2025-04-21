@@ -5,8 +5,8 @@ import com.google.common.base.Strings;
 import com.kpi_service.kpi_service.app.model.dbs.KpiCorporateModel;
 import com.kpi_service.kpi_service.app.model.dbs.KpiEmployeeModel;
 import com.kpi_service.kpi_service.app.model.dbs.MasterDataModel;
-import com.kpi_service.kpi_service.app.model.dto.AddKpiEmployeeRequest;
-import com.kpi_service.kpi_service.app.model.dto.KpiEmployeeResponse;
+import com.kpi_service.kpi_service.app.model.dto.kpi.AddKpiEmployeeRequest;
+import com.kpi_service.kpi_service.app.model.dto.kpi.KpiEmployeeResponse;
 import com.kpi_service.kpi_service.app.model.dto.client.*;
 import com.kpi_service.kpi_service.app.repositories.KpiCorporateRepository;
 import com.kpi_service.kpi_service.app.repositories.KpiEmployeeRepository;
@@ -215,9 +215,9 @@ public class KpiServiceImpl implements KpiService {
 
             //send to sandmerit
             EmployeeClientResponse result = kpiSmrServiceClient.updateEmployee(UpdateEmployeeRequest.builder()
-                    .ClientCode(kpiCorporateId)
-                    .Employee(employeeClientRequest)
-                    .EffectiveDate(effectiveDate)
+                    .clientCode(kpiCorporateId)
+                    .employee(employeeClientRequest)
+                    .effectiveDate(effectiveDate)
                     .build());
 
             if (result.getIsSuccess().equals(Boolean.FALSE)) {
