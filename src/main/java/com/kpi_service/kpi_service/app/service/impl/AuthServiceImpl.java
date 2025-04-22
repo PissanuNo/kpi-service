@@ -7,6 +7,7 @@ import com.kpi_service.kpi_service.app.model.dto.auth.AuthResponse;
 import com.kpi_service.kpi_service.app.model.dto.client.AuthClientResponse;
 import com.kpi_service.kpi_service.app.repositories.KpiEmployeeRepository;
 import com.kpi_service.kpi_service.app.service.AuthService;
+import com.kpi_service.kpi_service.app.service.UtilService;
 import com.kpi_service.kpi_service.app.service.client.account.AccountServiceClient;
 import com.kpi_service.kpi_service.app.service.client.smr.KpiConnection;
 import com.kpi_service.kpi_service.core.model.ResponseBodyModel;
@@ -32,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
     private final KpiConnection kpiConnection;
     private final KpiEmployeeRepository kpiEmployeeRepository;
     private final AccountServiceClient accountServiceClient;
+    private final UtilService utilService;
 
     @Value("${signon.sandmerit.path}")
     String signonSandmeritPath;
@@ -57,7 +59,8 @@ public class AuthServiceImpl implements AuthService {
             }
             //generate token sign on sandmerit internal
             String token = kpiConnection.getToken(employee.get().getKpiEmployeeId());
-            String redirect = String.format(signonSandmeritPath, employee.get().getKpiEmployeeId(), token);
+            String encodeEmployee = utilService.encodeToBase64(employee.get().getKpiEmployeeId().toString());
+            String redirect = String.format(signonSandmeritPath, encodeEmployee, token);
             response.setOperationSuccess(SUCCESS_CODE, SUCCESS,
                     AuthResponse.builder()
                             .employeeId(employee.get().getEmployeeId())

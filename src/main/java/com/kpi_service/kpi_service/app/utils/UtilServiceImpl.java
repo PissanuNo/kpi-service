@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.regex.Pattern;
 
 @Service
@@ -49,6 +51,11 @@ public class UtilServiceImpl implements UtilService {
                 .sortDirection(pageable.getSort().iterator().next().getDirection().name())
                 .sortBy(pageable.getSort().iterator().next().getProperty())
                 .build();
+    }
+
+    @Override
+    public String encodeToBase64(String value){
+        return Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
     }
 
 

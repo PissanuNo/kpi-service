@@ -5,9 +5,9 @@ import com.google.common.base.Strings;
 import com.kpi_service.kpi_service.app.model.dbs.KpiCorporateModel;
 import com.kpi_service.kpi_service.app.model.dbs.KpiEmployeeModel;
 import com.kpi_service.kpi_service.app.model.dbs.MasterDataModel;
+import com.kpi_service.kpi_service.app.model.dto.client.*;
 import com.kpi_service.kpi_service.app.model.dto.kpi.AddKpiEmployeeRequest;
 import com.kpi_service.kpi_service.app.model.dto.kpi.KpiEmployeeResponse;
-import com.kpi_service.kpi_service.app.model.dto.client.*;
 import com.kpi_service.kpi_service.app.repositories.KpiCorporateRepository;
 import com.kpi_service.kpi_service.app.repositories.KpiEmployeeRepository;
 import com.kpi_service.kpi_service.app.repositories.MasterDataRepository;
@@ -95,7 +95,7 @@ public class KpiServiceImpl implements KpiService {
             //send add to sandmerit kpi
             EmployeeClientResponse result = kpiSmrServiceClient.createEmployee(createEmployeeRequest);
 
-            if (Objects.isNull(result) || result.getIsSuccess().equals(Boolean.FALSE)) {
+            if (Objects.isNull(result) || Boolean.FALSE.equals(result.getIsSuccess())) {
                 log.error("Error Creating employee in sandmerit client: {}", result);
                 response.setOperationError(FAIL_CODE_EXTERNAL, ERROR, null);
                 return response;
@@ -145,7 +145,7 @@ public class KpiServiceImpl implements KpiService {
     }
 
     private Integer updateReviewer(String reviewer) {
-        Integer reviewerId = null;
+        Integer reviewerId = 0;
         Optional<KpiEmployeeModel> kpiEmployeeModel = kpiEmployeeRepository.findByEmployeeId(reviewer);
         if (kpiEmployeeModel.isPresent()) {
             reviewerId = kpiEmployeeModel.get().getKpiEmployeeId();
@@ -220,7 +220,7 @@ public class KpiServiceImpl implements KpiService {
                     .effectiveDate(effectiveDate)
                     .build());
 
-            if (result.getIsSuccess().equals(Boolean.FALSE)) {
+            if (result == null || Boolean.FALSE.equals(result.getIsSuccess())) {
                 log.error("Error Updating employee in smr client: {}", result);
                 response.setOperationError(FAIL_CODE_EXTERNAL, ERROR, null);
                 return response;

@@ -12,4 +12,5 @@ public interface UtilService {
 
     PageBodyModel pageableConvertToPageBodyModel(Pageable pageable, long totalElements, int totalPages);
 
+    String encodeToBase64(String value);
 }
