@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.Date;
 import java.util.Objects;
@@ -96,17 +97,18 @@ public class KpiServiceImpl implements KpiService {
             EmployeeClientResponse result = kpiSmrServiceClient.createEmployee(createEmployeeRequest);
 
             if (Objects.isNull(result) || Boolean.FALSE.equals(result.getIsSuccess())) {
-                log.error("Error Creating employee in sandmerit client: {}", result);
-                response.setOperationError(FAIL_CODE_EXTERNAL, ERROR, null);
-                return response;
+                log.error("Error Creating employee in sandmerit client");
+                //rollback
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                response.setOperationError(FAIL_CODE_EXTERNAL, EXTERNAL_SERVER_ERROR_MSG, null);
             } else {
                 log.info("Success to add employee in sandmerit client: {}", result);
             }
 
-            response.setOperationSuccess(SUCCESS_CODE, SUCCESS, createEmployeeRequest.toString());
+            response.setOperationSuccess(SUCCESS_CODE, SUCCESS, null);
         } catch (Exception ex) {
             log.error("Error Add KPI Employee: ", ex);
-            response.setOperationError(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MSG, null);
+            response.setOperationError(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MSG, ex.getMessage());
         }
         return response;
     }
@@ -186,7 +188,8 @@ public class KpiServiceImpl implements KpiService {
             }
 
             //get employee detail
-            ResponseBodyModel<ViewEmployeeDetailResponse> employeeDetail = accountServiceClient.getEmployeeDetail(employeeModel.get().getEmployeeId());
+            ResponseBodyModel<ViewEmployeeDetailResponse> employeeDetail = accountServiceClient
+                    .getEmployeeDetail(employeeModel.get().getEmployeeId());
             if (!employeeDetail.isStatus()) {
                 log.error(ERROR_GET_EMPLOYEE_DETAIL_FROM_ACCOUNT_SERVICE_CLIENT, employeeDetail.getMessage());
                 response.setOperationError(ERROR_CODE_BUSINESS, DATA_NOT_FOUND, null);
@@ -221,11 +224,13 @@ public class KpiServiceImpl implements KpiService {
                     .build());
 
             if (result == null || Boolean.FALSE.equals(result.getIsSuccess())) {
-                log.error("Error Updating employee in smr client: {}", result);
+                log.error("Error Updating employee in sandmerit client: {}", result);
+                //rollback
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                 response.setOperationError(FAIL_CODE_EXTERNAL, ERROR, null);
                 return response;
             }
-            log.info("Success to Update Employee in smr client: {}", result);
+            log.info("Success to Update Employee in sandmerit client: {}", result);
 
             response.setOperationSuccess(SUCCESS_CODE, SUCCESS, null);
         } catch (Exception ex) {
@@ -252,12 +257,12 @@ public class KpiServiceImpl implements KpiService {
                         .employeeCode(employeeModel.get().getKpiEmployeeId())
                         .build());
 
-                if (result.getIsSuccess().equals(Boolean.FALSE)) {
-                    log.error("Error Deleting employee in smr client: {}", result);
+                if (result == null || Boolean.FALSE.equals(result.getIsSuccess())) {
+                    log.error("Error Deleting employee in sandmerit client: {}", result);
                     response.setOperationError(FAIL_CODE_EXTERNAL, ERROR, null);
                     return response;
                 }
-                log.info("Success to delete employee in smr client: {} ", result);
+                log.info("Success to delete employee in sandmerit client: {} ", result);
 
                 //delete employee
                 kpiEmployeeRepository.deleteById(employeeModel.get().getKpiEmployeeId());

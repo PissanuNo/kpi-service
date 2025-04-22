@@ -33,6 +33,15 @@ public class KpiServiceController {
         return ResponseEntity.ok(response);
     }
 
+    @Permission(menu = KPI_MANAGEMENT, permission = UPDATE)
+    @PatchMapping(path = "/s/kpi",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ResponseBodyModel<String>> updateKpiEmployee(@RequestParam("employeeId") String employeeId,
+                                                                       @RequestParam("isEffective") boolean isEffective) {
+        ResponseBodyModel<String> response = kpiService.updateKpiEmployee(employeeId, isEffective);
+        return ResponseEntity.ok(response);
+    }
+
     @Permission(menu = KPI_MANAGEMENT, permission = DELETE)
     @DeleteMapping(path = "/s/kpi/{employeeId}",
             produces = MediaType.APPLICATION_JSON_VALUE)
