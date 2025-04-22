@@ -6,7 +6,7 @@ import com.kpi_service.kpi_service.app.model.dto.auth.AuthRequest;
 import com.kpi_service.kpi_service.app.model.dto.auth.AuthResponse;
 import com.kpi_service.kpi_service.app.model.dto.client.AuthClientResponse;
 import com.kpi_service.kpi_service.app.repositories.KpiEmployeeRepository;
-import com.kpi_service.kpi_service.app.service.AuthService;
+import com.kpi_service.kpi_service.app.service.AuthKpiService;
 import com.kpi_service.kpi_service.app.service.UtilService;
 import com.kpi_service.kpi_service.app.service.client.account.AccountServiceClient;
 import com.kpi_service.kpi_service.app.service.client.smr.KpiConnection;
@@ -26,9 +26,9 @@ import static com.kpi_service.kpi_service.app.constant.Constants.ResponseMessage
 
 @RequiredArgsConstructor
 @Service
-public class AuthServiceImpl implements AuthService {
+public class AuthKpiServiceImpl implements AuthKpiService {
 
-    Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
+    Logger logger = LoggerFactory.getLogger(AuthKpiServiceImpl.class);
 
     private final KpiConnection kpiConnection;
     private final KpiEmployeeRepository kpiEmployeeRepository;
